@@ -1,3 +1,17 @@
+import sys
+import os
+from pathlib import Path
+
+# Add a project root path to a python path
+sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+# 获取当前文件所在目录的父目录的父目录（即项目根目录）
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+print("base_dir:" + str(BASE_DIR))
+
+# 将项目根目录下的 src 目录加入模块搜索路径
+sys.path.append(str(BASE_DIR / "src"))
+
 from common.logging.system_log import logging, setup_logging
 import mimetypes
 import sys
@@ -18,30 +32,19 @@ from panda_server.routes import (
     chat_routes,
 )
 from starlette.staticfiles import StaticFiles
-from pathlib import Path
 
 from panda_server.routes.trading import (
     trading_routes,
     trading_report_routes
 )
 
-import sys
-import os
-# Add project root path to python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))  
-
 # Load .env file if exsits
 import dotenv
+
 dotenv.load_dotenv()
 
 logger = logging.getLogger(__name__)
 
-# 获取当前文件所在目录的父目录的父目录（即项目根目录）
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-print("base_dir:" + str(BASE_DIR))
-
-# 将项目根目录下的 src 目录加入模块搜索路径
-sys.path.append(str(BASE_DIR / "src"))
 
 # Define lifespan for FastAPI
 @asynccontextmanager
@@ -52,7 +55,7 @@ async def lifespan(app: FastAPI):
     logger.info("Connecting to MongoDB...")
     await mongodb.connect_db()
     logger.info("MongoDB connection successful")
-    
+
     # Initialize local database indexes
     await mongodb.init_local_db()
 
